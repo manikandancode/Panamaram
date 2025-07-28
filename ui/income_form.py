@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QDialog, QFormLayout, QLineEdit, QComboBox, QPushButton,
     QDateEdit, QSpinBox, QCheckBox, QMessageBox
 )
-from PySide6.QtCore import QDate
+from PySide6.QtCore import QDate, Signal
+
 from db.income_manager import add_income, update_income
 
 income_categories = sorted([
@@ -20,18 +21,21 @@ income_categories = sorted([
 ])
 
 class IncomeForm(QDialog):
+    # Signal emitted after a new income entry is added or updated successfully
+    income_added = Signal()
+
     def __init__(self, edit_data=None, on_save_callback=None):
         super().__init__()
         self.setWindowTitle("Add Income" if not edit_data else "Edit Income")
         self.setFixedSize(400, 350)
 
+        # If editing, the income record id is held here
         self.income_id = edit_data[0] if edit_data else None
-        self.on_save_callback = on_save_callback
+        self.on_save_callback = on_save_callback  # callback optional
 
         layout = QFormLayout()
 
         self.amount_input = QLineEdit()
-
         self.date_input = QDateEdit()
         self.date_input.setCalendarPopup(True)
         self.date_input.setDisplayFormat("dd-MM-yyyy")
@@ -59,6 +63,7 @@ class IncomeForm(QDialog):
         layout.addRow(self.recurring_checkbox)
         layout.addRow("Repeat every", self.recur_input)
         layout.addRow(self.save_btn)
+
         self.setLayout(layout)
 
         if edit_data:
@@ -106,8 +111,14 @@ class IncomeForm(QDialog):
             else:
                 add_income(amount, date_val, source, note, is_recurring, recurrence)
 
+            # Run callback if any
             if self.on_save_callback:
                 self.on_save_callback()
+
+            # Emit signal to notify listeners (e.g., income table) to refresh data
+            self.income_added.emit()
+
             self.accept()
+
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save income: {e}")

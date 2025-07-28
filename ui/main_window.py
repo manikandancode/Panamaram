@@ -1,17 +1,20 @@
 import os
 import sys
 import shutil
+
 from PySide6.QtWidgets import (
-    QMainWindow, QMenuBar, QMenu, QToolBar, QMessageBox,
-    QFileDialog
+    QMainWindow, QMenuBar, QMenu, QFileDialog,
+    QMessageBox
 )
-from PySide6.QtGui import QIcon, QAction
+from PySide6.QtGui import QAction, QIcon
+
 from ui.dashboard import DashboardWidget
 from ui.expense_table import ExpenseTable
 from ui.income_table import IncomeTable
 from ui.expense_form import ExpenseForm
 from ui.income_form import IncomeForm
 from ui.currency_chooser import CurrencyChooser
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,22 +23,24 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Panamaram - Personal Finance Expense Tracker")
         self.resize(1100, 680)
 
-        base_dir = os.path.dirname(os.path.dirname(__file__))
+        # Set application icon depending on OS
+        base_dir = os.path.dirname(os.path.dirname(__file__))  # Adjust as needed
         assets_dir = os.path.join(base_dir, "assets")
-        icon_path = os.path.join(
-            assets_dir, "icon.ico" if sys.platform.startswith("win") else "icon.png"
-        )
+        icon_path = os.path.join(assets_dir, "icon.ico" if sys.platform.startswith("win") else "icon.png")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
+        # Initialize child windows as None
         self.expense_window = None
         self.income_window = None
         self.report_window = None
-        self.bills_window = None  # Track bills window instance
+        self.bills_window = None  # Bill reminders window
 
+        # Setup main dashboard widget
         self.dashboard = DashboardWidget()
         self.setCentralWidget(self.dashboard)
 
+        # Setup menubar
         self._setup_menubar()
 
     def _setup_menubar(self):
@@ -43,6 +48,7 @@ class MainWindow(QMainWindow):
 
         # ----------- File Menu -----------
         file_menu = QMenu("File", self)
+
         add_expense_action = QAction("Add Expense", self)
         add_expense_action.triggered.connect(self.open_add_expense)
         file_menu.addAction(add_expense_action)
@@ -51,7 +57,6 @@ class MainWindow(QMainWindow):
         add_income_action.triggered.connect(self.open_add_income)
         file_menu.addAction(add_income_action)
 
-        # Added "Add Bill Reminder" action as requested
         add_bill_action = QAction("Add Bill Reminder", self)
         add_bill_action.triggered.connect(self.open_add_bill)
         file_menu.addAction(add_bill_action)
@@ -78,6 +83,7 @@ class MainWindow(QMainWindow):
 
         # ----------- View Menu -----------
         view_menu = QMenu("View", self)
+
         show_expense_action = QAction("Show Expenses", self)
         show_expense_action.triggered.connect(self.open_expense_window)
         view_menu.addAction(show_expense_action)
@@ -86,7 +92,6 @@ class MainWindow(QMainWindow):
         show_income_action.triggered.connect(self.open_income_window)
         view_menu.addAction(show_income_action)
 
-        # Added "Show Bills" action for bill reminders
         show_bills_action = QAction("Show Bills", self)
         show_bills_action.triggered.connect(self.open_bills_window)
         view_menu.addAction(show_bills_action)
@@ -95,32 +100,37 @@ class MainWindow(QMainWindow):
         show_report_action.triggered.connect(self.open_reports_window)
         view_menu.addAction(show_report_action)
 
-
         menu_bar.addMenu(view_menu)
 
         # ----------- Settings Menu -----------
         settings_menu = QMenu("Settings", self)
+
         currency_action = QAction("Change Currency", self)
         currency_action.triggered.connect(self.open_currency_dialog)
         settings_menu.addAction(currency_action)
+
         menu_bar.addMenu(settings_menu)
 
         # ----------- Help Menu -----------
         help_menu = QMenu("Help", self)
+
         license_action = QAction("License", self)
         license_action.triggered.connect(self.show_license_dialog)
         help_menu.addAction(license_action)
+
         about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about_dialog)
         help_menu.addAction(about_action)
+
         menu_bar.addMenu(help_menu)
 
-        # ----------- Refresh Dashboard (standalone action) -----------
+        # ----------- Optional Refresh Dashboard action -----------
         refresh_action = QAction("Refresh Dashboard", self)
         refresh_action.triggered.connect(self.dashboard.refresh_charts)
         menu_bar.addAction(refresh_action)
 
-    # ==== File actions ====
+    # ==== File Menu Actions ====
+
     def open_add_expense(self):
         dialog = ExpenseForm(on_save_callback=self.dashboard.refresh_charts)
         dialog.exec()
@@ -129,52 +139,72 @@ class MainWindow(QMainWindow):
         dialog = IncomeForm(on_save_callback=self.dashboard.refresh_charts)
         dialog.exec()
 
-    # New: Open Bill Form dialog
     def open_add_bill(self):
         try:
             from ui.bill_form import BillForm
-            dialog = BillForm()
-            if dialog.exec():
-                self.dashboard.refresh_home_tab()  # Refresh dashboard home on bill add
         except ImportError:
             QMessageBox.warning(self, "Error", "Bill Form not found or not implemented yet.")
+            return
 
-    # ==== View actions ====
+        dialog = BillForm()
+        if dialog.exec():
+            self.dashboard.refresh_home_tab()  # Refresh dashboard after adding bill
+
+    # ==== View Menu Actions ====
+
     def open_expense_window(self):
-        if not self.expense_window:
+        if self.expense_window is None:
             self.expense_window = ExpenseTable()
         self.expense_window.show()
         self.expense_window.raise_()
         self.expense_window.activateWindow()
 
     def open_income_window(self):
-        if not self.income_window:
+        if self.income_window is None:
             self.income_window = IncomeTable()
+
+            # Optionally connect dashboard add income to refresh income window as well
+            self.dashboard._emit_add_income = self._wrapped_add_income_with_refresh
+
         self.income_window.show()
         self.income_window.raise_()
         self.income_window.activateWindow()
 
+    def _wrapped_add_income_with_refresh(self):
+        dialog = IncomeForm(on_save_callback=self.dashboard.refresh_charts)
+        if dialog.exec():
+            self.dashboard.refresh_charts()
+            if self.income_window:
+                self.income_window.refresh_table()
+
     def open_reports_window(self):
         if self.report_window is None:
-            from ui.reports import ReportWindow
-            self.report_window = ReportWindow()
+            try:
+                from ui.reports import ReportWindow
+                self.report_window = ReportWindow()
+            except ImportError:
+                QMessageBox.warning(self, "Error", "Reports window not found or not implemented yet.")
+                return
+
         self.report_window.show()
         self.report_window.raise_()
         self.report_window.activateWindow()
 
-    # New: Open Bills Table window
     def open_bills_window(self):
         try:
             from ui.bill_table import BillTable
-            if not self.bills_window:
-                self.bills_window = BillTable(self)
-            self.bills_window.show()
-            self.bills_window.raise_()
-            self.bills_window.activateWindow()
         except ImportError:
             QMessageBox.warning(self, "Error", "Bill Table not found or not implemented yet.")
+            return
 
-    # ==== Settings ====
+        if self.bills_window is None:
+            self.bills_window = BillTable(self)
+        self.bills_window.show()
+        self.bills_window.raise_()
+        self.bills_window.activateWindow()
+
+    # ==== Settings Menu Actions ====
+
     def open_currency_dialog(self):
         dialog = CurrencyChooser()
         if dialog.exec():
@@ -184,7 +214,8 @@ class MainWindow(QMainWindow):
             if self.income_window:
                 self.income_window.refresh_table()
 
-    # ==== Help ====
+    # ==== Help Menu Actions ====
+
     def show_license_dialog(self):
         license_text = (
             "MIT License\n\n"
@@ -218,6 +249,7 @@ class MainWindow(QMainWindow):
         QMessageBox.about(self, "About Panamaram", about_text)
 
     # ==== Secure Encrypted Backup Methods ====
+
     def export_encrypted_backup(self):
         try:
             from utils import path_utils
@@ -236,6 +268,7 @@ class MainWindow(QMainWindow):
             "panamaram-backup.db.aes",
             "Encrypted DB Files (*.aes);;All Files (*)"
         )
+
         if not dest_file:
             return
 
@@ -272,10 +305,12 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(
             self,
             "Confirm Restore",
-            ("Restoring a backup will replace your current database and "
-             "all current data will be lost.\n\n"
-             "Make sure you have backed up your current data if needed.\n\n"
-             "Proceed with restoring this backup?"),
+            (
+                "Restoring a backup will replace your current database and "
+                "all current data will be lost.\n\n"
+                "Make sure you have backed up your current data if needed.\n\n"
+                "Proceed with restoring this backup?"
+            ),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -285,6 +320,7 @@ class MainWindow(QMainWindow):
 
         try:
             shutil.copy2(src_file, db_encrypted_path)
+
             # Remove decrypted DB file if it exists to force fresh decrypt on next start
             if os.path.exists(decrypted_db_path):
                 try:
@@ -296,6 +332,7 @@ class MainWindow(QMainWindow):
                         f"Could not remove decrypted database file:\n{str(e)}\n"
                         "You may need to restart your computer or close any app using the database."
                     )
+
             QMessageBox.information(
                 self,
                 "Restore Successful",

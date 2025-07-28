@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from datetime import datetime
+
 from ui.income_form import IncomeForm
 from db.income_manager import get_income_page, count_income, delete_income
 from db.db_manager import get_setting
@@ -32,7 +33,7 @@ class IncomeTable(QWidget):
         self.setWindowTitle("My Income")
         self.resize(900, 550)
 
-        # Pagination params
+        # Pagination parameters
         self.page_size = 20
         self.current_page = 1
 
@@ -43,6 +44,8 @@ class IncomeTable(QWidget):
         self.table.setHorizontalHeaderLabels(
             ["Date", "Amount", "Source", "Note", "Recurring", "Actions"]
         )
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
 
         # Add Income button
         self.add_btn = QPushButton("➕ Add Income")
@@ -89,6 +92,7 @@ class IncomeTable(QWidget):
 
         # Fetch page data
         incomes = get_income_page(self.current_page, self.page_size)
+
         self.table.setRowCount(len(incomes))
 
         for row_idx, income in enumerate(incomes):
@@ -104,7 +108,11 @@ class IncomeTable(QWidget):
             self.table.setItem(row_idx, 1, QTableWidgetItem(f"{self.currency}{amount:,.2f}"))
             self.table.setItem(row_idx, 2, QTableWidgetItem(source))
             self.table.setItem(row_idx, 3, QTableWidgetItem(note))
-            self.table.setItem(row_idx, 4, QTableWidgetItem(f"Yes ({interval} days)" if is_recurring else "No"))
+            self.table.setItem(
+                row_idx,
+                4,
+                QTableWidgetItem(f"Yes ({interval} days)" if is_recurring else "No"),
+            )
 
             # Actions cell with Edit/Delete buttons
             edit_btn = QPushButton("✏️ Edit")
@@ -131,21 +139,31 @@ class IncomeTable(QWidget):
 
     def open_add_income(self):
         dialog = IncomeForm(on_save_callback=self.refresh_table)
+        # Connect signal from form to refresh table directly as well
+        dialog.income_added.connect(self.refresh_table)
+
         if dialog.exec():
             self.current_page = 1  # reset to first page on add
             self.refresh_table()
 
     def edit_income(self, income_data):
         dialog = IncomeForm(edit_data=income_data, on_save_callback=self.refresh_table)
+        dialog.income_added.connect(self.refresh_table)
+
         if dialog.exec():
             self.refresh_table()
 
     def delete_income(self, income_id):
         reply = QMessageBox.question(
-            self, "Confirm Delete", "Are you sure you want to delete this income record?"
+            self,
+            "Confirm Delete",
+            "Are you sure you want to delete this income record?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
             delete_income(income_id)
+
             # If deleting last row and not first page, go back one page
             if self.table.rowCount() == 1 and self.current_page > 1:
                 self.current_page -= 1

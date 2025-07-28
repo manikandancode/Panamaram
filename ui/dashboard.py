@@ -1,12 +1,16 @@
 import sqlite3
 import calendar
+from datetime import datetime, timedelta
+
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QComboBox, QSpinBox, QScrollArea
+    QWidget, QLabel, QTabWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QSizePolicy, QComboBox, QSpinBox, QScrollArea
 )
 from PySide6.QtCore import Qt, QDate, Signal
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from datetime import datetime, timedelta
+
 from utils import path_utils
 from utils.smart_suggestions import get_suggestion
 from db.bill_manager import ensure_bill_table, get_unpaid_bills, get_overdue_bills
@@ -31,7 +35,7 @@ class DashboardWidget(QWidget):
         self.tabs = QTabWidget(self)
         self.tabs.currentChanged.connect(lambda _: self.periodChanged.emit())
 
-        # ==== Enhanced Home tab ====
+        # ==== Home tab ====
         self.home_tab = QWidget()
         home_layout = QVBoxLayout(self.home_tab)
         home_layout.setAlignment(Qt.AlignTop)
@@ -40,17 +44,21 @@ class DashboardWidget(QWidget):
         # 1. Summary Tiles / Key Stats
         self.summary_tiles_layout = QHBoxLayout()
         self.summary_tiles_layout.setSpacing(15)
+
         self.tile_spending = self._create_summary_tile("💸 Spending This Month", "#d32f2f")
         self.tile_income = self._create_summary_tile("💰 Income This Month", "#388e3c")
         self.tile_balance = self._create_summary_tile("🧮 Balance", "#1976d2")
         self.tile_saving = self._create_summary_tile("📈 Savings Rate", "#ffa000")
+
         for tile in [self.tile_spending, self.tile_income, self.tile_balance, self.tile_saving]:
             self.summary_tiles_layout.addWidget(tile)
+
         home_layout.addLayout(self.summary_tiles_layout)
 
         # 2. Quick Actions / Shortcuts buttons
         self.quick_actions_layout = QHBoxLayout()
         self.quick_actions_layout.setSpacing(10)
+
         action_definitions = [
             ("Add Expense", self._emit_add_expense),
             ("Add Income", self._emit_add_income),
@@ -63,6 +71,7 @@ class DashboardWidget(QWidget):
             ("Add Bill", self._emit_add_bill),
             ("Show Bills", self._emit_show_bills),
         ]
+
         for label, slot in action_definitions:
             btn = QPushButton(label)
             btn.setCursor(Qt.PointingHandCursor)
@@ -70,49 +79,45 @@ class DashboardWidget(QWidget):
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             btn.clicked.connect(slot)
             self.quick_actions_layout.addWidget(btn)
+
         home_layout.addLayout(self.quick_actions_layout)
 
         # 3. Smart Suggestions label
         self.suggestion_label = QLabel("")
         self.suggestion_label.setWordWrap(True)
-        self.suggestion_label.setStyleSheet("color:#1976d2; font-weight:bold; font-size:14px; margin-top:12px;")
+        self.suggestion_label.setStyleSheet(
+            "color:#1976d2; font-weight:bold; font-size:14px; margin-top:12px;"
+        )
         home_layout.addWidget(self.suggestion_label)
 
         # 4. Bill Reminders display section
         self.bills_widget = QLabel()
         self.bills_widget.setWordWrap(True)
         self.bills_widget.setTextFormat(Qt.RichText)
-        # Option 1 fix for dark theme readability (explicit font color)
         self.bills_widget.setStyleSheet(
             "border-radius:10px; padding:16px; font-size:15px; margin:14px 0; background-color:#fff8e1; color:#111;"
         )
+
         self.bills_scroll_area = QScrollArea()
         self.bills_scroll_area.setWidgetResizable(True)
-        self.bills_scroll_area.setFixedHeight(180)  # Adjust as needed (e.g. 150–250)
+        self.bills_scroll_area.setFixedHeight(180)  # Adjust height as needed
         self.bills_scroll_area.setFrameShape(QScrollArea.NoFrame)
         self.bills_scroll_area.setWidget(self.bills_widget)
+
         home_layout.addWidget(self.bills_scroll_area)
 
-        # Helper: format date as dd-mm-yyyy for display
-        def format_ddmmyyyy(datestr):
-            try:
-                dt = datetime.strptime(datestr, "%Y-%m-%d")
-                return dt.strftime("%d-%m-%Y")
-            except Exception:
-                return datestr
-
         # 5. Website link at bottom
-        self.website_label = QLabel('<a href="https://due.im">🌐 Visit Project Website: due.im</a>')
+        self.website_label = QLabel('🌐 Visit Project Website: due.im')
         self.website_label.setTextFormat(Qt.RichText)
         self.website_label.setOpenExternalLinks(True)
         self.website_label.setAlignment(Qt.AlignCenter)
         self.website_label.setStyleSheet("font-size: 13px; margin-top: 25px;")
         home_layout.addWidget(self.website_label)
 
-        # Add Home tab
+        # Add Home tab to tabs
         self.tabs.addTab(self.home_tab, "Home")
 
-        # Helper to create tabs with period controls inside each tab
+        # Helper: Create tabs with period controls
         def create_tab_with_period_controls(tab_title):
             tab = QWidget()
             layout = QVBoxLayout(tab)
@@ -120,7 +125,7 @@ class DashboardWidget(QWidget):
 
             label = QLabel(tab_title)
             label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
-            label.setStyleSheet("font-weight:bold; font-size: 15px;")
+            label.setStyleSheet("font-weight:bold; font-size:15px;")
             layout.addWidget(label)
 
             # Period type selector
@@ -148,8 +153,8 @@ class DashboardWidget(QWidget):
             year_spin.setValue(QDate.currentDate().year())
             period_controls.addWidget(year_label)
             period_controls.addWidget(year_spin)
-
             period_controls.addStretch(1)
+
             layout.addLayout(period_controls)
 
             return (
@@ -235,7 +240,7 @@ class DashboardWidget(QWidget):
         self.ratio_pie_canvas = FigureCanvas(Figure(figsize=(7, 5)))
         ratio_layout.addWidget(self.ratio_pie_canvas)
 
-        # Add tabs in requested order
+        # Add tabs in order
         self.tabs.addTab(self.exp_tab, "Expense Breakdown")
         self.tabs.addTab(self.inc_tab, "Income Breakdown")
         self.tabs.addTab(self.sav_tab, "Savings vs Expenses")
@@ -252,6 +257,7 @@ class DashboardWidget(QWidget):
             self.period_type_sav,
             self.period_type_ratio,
         ]
+
         self._month_combos = [
             self.month_combo_trend,
             self.month_combo_exp,
@@ -259,6 +265,7 @@ class DashboardWidget(QWidget):
             self.month_combo_sav,
             self.month_combo_ratio,
         ]
+
         self._year_spins = [
             self.year_spin_trend,
             self.year_spin_exp,
@@ -267,37 +274,38 @@ class DashboardWidget(QWidget):
             self.year_spin_ratio,
         ]
 
-        # Connect all period type combos to shared handler
+        # Connect all period type combos to shared handlers
         for pt_combo in self._period_type_combos:
             pt_combo.currentIndexChanged.connect(self._on_period_type_combo_changed)
-
-        # Connect all controls to one slot to sync values and emit refresh signal
-        for pt_combo in self._period_type_combos:
             pt_combo.currentIndexChanged.connect(self._on_any_period_control_changed)
+
         for mc in self._month_combos:
             mc.currentIndexChanged.connect(self._on_any_period_control_changed)
+
         for ys in self._year_spins:
             ys.valueChanged.connect(self._on_any_period_control_changed)
 
-        # Initialize default selections
+        # Initialize default selections to current month/year
         current_month, current_year = get_current_month_year()
         for pt_combo in self._period_type_combos:
             pt_combo.setCurrentText("Monthly")
+
         for mc in self._month_combos:
             mc.setCurrentIndex(current_month - 1)
+
         for ys in self._year_spins:
             ys.setValue(current_year)
 
         # Initial sync and refresh
         self._sync_all_controls()
         self.periodChanged.connect(self.refresh_charts)
+
         self.refresh_home_tab()
         self.refresh_charts()
 
     def _get_app_currency(self):
         try:
             from db.db_manager import get_setting
-
             cur = get_setting("currency")
             return cur if cur else "₹"
         except Exception:
@@ -317,7 +325,7 @@ class DashboardWidget(QWidget):
             font-size: 16px;
             padding: 20px;
             min-width: 150px;
-        """
+            """
         )
         return tile
 
@@ -330,14 +338,13 @@ class DashboardWidget(QWidget):
             first_this_month = now.replace(day=1)
             prev_month_date = first_this_month - timedelta(days=1)
             previous_month = prev_month_date.strftime("%Y-%m")
-
             currency = self._get_app_currency()
 
-            c.execute(
-                "SELECT IFNULL(SUM(amount),0) FROM expenses WHERE substr(date,1,7) = ?", (current_month_str,)
-            )
+            # Current spending this month
+            c.execute("SELECT IFNULL(SUM(amount),0) FROM expenses WHERE substr(date,1,7) = ?", (current_month_str,))
             current_spending = c.fetchone()[0] or 0
 
+            # Current income this month
             c.execute("SELECT IFNULL(SUM(amount),0) FROM income WHERE substr(date,1,7) = ?", (current_month_str,))
             current_income = c.fetchone()[0] or 0
 
@@ -375,20 +382,24 @@ class DashboardWidget(QWidget):
 
         html = ""
         if overdues:
-            html += "<b style='color:#d32f2f'>⏰ Overdue Bills:</b><br>"
+            html += "<b>⏰ Overdue Bills:</b><br>"
             for b in overdues:
                 due_str = format_ddmmyyyy(b[3])
-                html += f"<b>{b[1]}</b>: {b[2]:.2f} due <b>{due_str}</b><br>"
+                html += f"{b[1]}: {b[2]:.2f} due {due_str}<br>"
+
         if upcomings:
-            html += "<b style='color:#1976d2'>📅 Upcoming Bills:</b><br>"
+            html += "<b>📅 Upcoming Bills:</b><br>"
             for b in upcomings:
                 due_str = format_ddmmyyyy(b[3])
-                html += f"<b>{b[1]}</b>: {b[2]:.2f} due {due_str}<br>"
+                html += f"{b[1]}: {b[2]:.2f} due {due_str}<br>"
+
         if not html:
-            html = "<i>No due bills! 🎉</i>"
+            html = "No due bills! 🎉"
+
         return html
 
-    # Quick Action slots
+    # Quick Action slots - these call parents' methods if available
+
     def _emit_add_expense(self):
         if self.parent() and hasattr(self.parent(), "open_add_expense"):
             self.parent().open_add_expense()
@@ -429,8 +440,6 @@ class DashboardWidget(QWidget):
         if self.parent() and hasattr(self.parent(), "open_bills_window"):
             self.parent().open_bills_window()
 
-    # --- (rest unchanged)
-
     def _on_any_period_control_changed(self, *args):
         self._sync_all_controls()
         self.periodChanged.emit()
@@ -442,37 +451,41 @@ class DashboardWidget(QWidget):
             txt = sender.currentText()
         else:
             txt = self._period_type_combos[0].currentText()
+
         for ptc in self._period_type_combos:
             if ptc.currentText() != txt:
                 ptc.blockSignals(True)
                 ptc.setCurrentText(txt)
                 ptc.blockSignals(False)
+
         monthly_selected = (txt == "Monthly")
-        for mc, ml in zip(
-            self._month_combos,
-            [
-                self.month_label_trend,
-                self.month_label_exp,
-                self.month_label_inc,
-                self.month_label_sav,
-                self.month_label_ratio,
-            ],
-        ):
+
+        for mc, ml in zip(self._month_combos, [
+            self.month_label_trend,
+            self.month_label_exp,
+            self.month_label_inc,
+            self.month_label_sav,
+            self.month_label_ratio,
+        ]):
             mc.setEnabled(monthly_selected)
             ml.setEnabled(monthly_selected)
+
         if sender in self._month_combos:
             idx = sender.currentIndex()
         else:
             idx = self._month_combos[0].currentIndex()
+
         for mc in self._month_combos:
             if mc.currentIndex() != idx:
                 mc.blockSignals(True)
                 mc.setCurrentIndex(idx)
                 mc.blockSignals(False)
+
         if sender in self._year_spins:
             val = sender.value()
         else:
             val = self._year_spins[0].value()
+
         for ys in self._year_spins:
             if ys.value() != val:
                 ys.blockSignals(True)
@@ -483,30 +496,32 @@ class DashboardWidget(QWidget):
         sender = self.sender()
         if sender is None:
             return
+
         curr_text = sender.currentText()
         monthly_selected = (curr_text == "Monthly")
-        for mc, ml in zip(
-            self._month_combos,
-            [
-                self.month_label_trend,
-                self.month_label_exp,
-                self.month_label_inc,
-                self.month_label_sav,
-                self.month_label_ratio,
-            ],
-        ):
+
+        for mc, ml in zip(self._month_combos, [
+            self.month_label_trend,
+            self.month_label_exp,
+            self.month_label_inc,
+            self.month_label_sav,
+            self.month_label_ratio,
+        ]):
             mc.setEnabled(monthly_selected)
             ml.setEnabled(monthly_selected)
+
         for ptc in self._period_type_combos:
             if ptc != sender:
                 ptc.blockSignals(True)
                 ptc.setCurrentText(curr_text)
                 ptc.blockSignals(False)
+
         self.periodChanged.emit()
 
     def get_selected_period(self):
         period_type = self._period_type_combos[0].currentText()
         year = self.year_spin_trend.value()
+
         if period_type == "Monthly":
             month = self.month_combo_trend.currentData()
             return "month", f"{year:04d}-{month:02d}"
@@ -530,7 +545,15 @@ class DashboardWidget(QWidget):
             fig.tight_layout(pad=0.15)
             self.trend_canvas.draw()
 
-        exp_cats, exp_totals, inc_cats, inc_totals, total_expense, total_income = self.get_period_filtered_data()
+        (
+            exp_cats,
+            exp_totals,
+            inc_cats,
+            inc_totals,
+            total_expense,
+            total_income,
+        ) = self.get_period_filtered_data()
+
         self.draw_pie_chart(exp_cats, exp_totals, "No data available for Expense Breakdown", self.exp_pie_canvas)
         self.draw_pie_chart(inc_cats, inc_totals, "No data available for Income Breakdown", self.inc_pie_canvas)
 
@@ -574,67 +597,87 @@ class DashboardWidget(QWidget):
     def get_full_timeline_data(self):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
         c.execute("SELECT substr(date,1,7) as month, SUM(amount) FROM expenses GROUP BY month ORDER BY month")
         exp = c.fetchall()
+
         c.execute("SELECT substr(date,1,7) as month, SUM(amount) FROM income GROUP BY month ORDER BY month")
         inc = c.fetchall()
+
         conn.close()
+
         exp_dict = dict(exp)
         inc_dict = dict(inc)
+
         all_months = sorted(set(exp_dict.keys()) | set(inc_dict.keys()))
+
         expenses = [exp_dict.get(m, 0) for m in all_months]
         income = [inc_dict.get(m, 0) for m in all_months]
+
         return all_months, expenses, income
 
     def get_period_filtered_data(self):
         period_type, period_value = self.get_selected_period()
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
         if period_type == "month":
             c.execute(
                 "SELECT category, SUM(amount) FROM expenses WHERE substr(date,1,7)=? GROUP BY category ORDER BY SUM(amount) DESC",
                 (period_value,),
             )
             exp_rows = c.fetchall()
+
             c.execute(
                 "SELECT source, SUM(amount) FROM income WHERE substr(date,1,7)=? GROUP BY source ORDER BY SUM(amount) DESC",
                 (period_value,),
             )
             inc_rows = c.fetchall()
+
             c.execute("SELECT SUM(amount) FROM expenses WHERE substr(date,1,7)=?", (period_value,))
             total_exp = c.fetchone()[0] or 0
+
             c.execute("SELECT SUM(amount) FROM income WHERE substr(date,1,7)=?", (period_value,))
             total_inc = c.fetchone()[0] or 0
+
         else:  # year
             c.execute(
                 "SELECT category, SUM(amount) FROM expenses WHERE substr(date,1,4)=? GROUP BY category ORDER BY SUM(amount) DESC",
                 (period_value,),
             )
             exp_rows = c.fetchall()
+
             c.execute(
                 "SELECT source, SUM(amount) FROM income WHERE substr(date,1,4)=? GROUP BY source ORDER BY SUM(amount) DESC",
                 (period_value,),
             )
             inc_rows = c.fetchall()
+
             c.execute("SELECT SUM(amount) FROM expenses WHERE substr(date,1,4)=?", (period_value,))
             total_exp = c.fetchone()[0] or 0
+
             c.execute("SELECT SUM(amount) FROM income WHERE substr(date,1,4)=?", (period_value,))
             total_inc = c.fetchone()[0] or 0
+
         conn.close()
+
         exp_cats, exp_totals = zip(*exp_rows) if exp_rows else ([], [])
         inc_cats, inc_totals = zip(*inc_rows) if inc_rows else ([], [])
+
         return exp_cats, exp_totals, inc_cats, inc_totals, total_exp, total_inc
 
     def draw_pie_chart(self, categories, values, empty_msg, canvas):
         fig = canvas.figure
         fig.clear()
         ax = fig.add_subplot(111)
+
         if values and sum(values) > 0:
             ax.pie(values, labels=categories, autopct="%1.1f%%", startangle=140)
             ax.set_title("")
         else:
             self.show_empty_message(empty_msg, canvas)
             return
+
         fig.tight_layout(pad=0.15)
         canvas.draw()
 
