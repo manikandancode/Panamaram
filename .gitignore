@@ -1,0 +1,45 @@
+# Python cache and compiled files
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment and virtualenv
+venv/
+.venv/
+ENV/
+env/
+.venv.bak/
+.env/
+.env.bak/
+
+# SQLite DB and local secrets (customize as needed)
+*.sqlite3
+*.db
+*.db-aes
+*.db.aes
+*.db-wal
+*.db-shm
+*.db-journal
+
+# PyInstaller output
+dist/
+build/
+*.spec
+
+# VS Code user/workspace settings
+.vscode/
+
+# OS/System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+__MACOSX/
+
+# Logs
+*.log
+
+# Others—add as needed for your project!
+config/
+*.bak
+*.tmp
