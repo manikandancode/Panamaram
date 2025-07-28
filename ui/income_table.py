@@ -37,8 +37,10 @@ class IncomeTable(QWidget):
         self.page_size = 20
         self.current_page = 1
 
+        # Load currency symbol from settings
         self.currency = get_setting("currency", "₹")
 
+        # Setup UI components
         self.table = QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
@@ -77,7 +79,12 @@ class IncomeTable(QWidget):
         # Initial load
         self.refresh_table()
 
+    def update_currency(self):
+        """Refresh the currency symbol from the settings."""
+        self.currency = get_setting("currency", "₹")
+
     def refresh_table(self):
+        self.update_currency()
         self.table.clearContents()
 
         # Get total count and total pages
@@ -117,8 +124,9 @@ class IncomeTable(QWidget):
             # Actions cell with Edit/Delete buttons
             edit_btn = QPushButton("✏️ Edit")
             delete_btn = QPushButton("🗑️ Delete")
-            edit_btn.clicked.connect(lambda checked, inc=income: self.edit_income(inc))
-            delete_btn.clicked.connect(lambda checked, eid=income_id: self.delete_income(eid))
+            # Use default arguments in lambda to bind current row income data
+            edit_btn.clicked.connect(lambda _, inc=income: self.edit_income(inc))
+            delete_btn.clicked.connect(lambda _, eid=income_id: self.delete_income(eid))
 
             action_layout = QHBoxLayout()
             action_layout.setContentsMargins(0, 0, 0, 0)

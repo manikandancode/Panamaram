@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.resize(1100, 680)
 
         # Set application icon depending on OS
-        base_dir = os.path.dirname(os.path.dirname(__file__))  # Adjust as needed
+        base_dir = os.path.dirname(os.path.dirname(__file__))  # Adjust if needed for your directory structure
         assets_dir = os.path.join(base_dir, "assets")
         icon_path = os.path.join(assets_dir, "icon.ico" if sys.platform.startswith("win") else "icon.png")
         if os.path.exists(icon_path):
@@ -36,11 +36,11 @@ class MainWindow(QMainWindow):
         self.report_window = None
         self.bills_window = None  # Bill reminders window
 
-        # Setup main dashboard widget
+        # Setup main dashboard widget and set as central widget
         self.dashboard = DashboardWidget()
         self.setCentralWidget(self.dashboard)
 
-        # Setup menubar
+        # Setup main menu bar and menus
         self._setup_menubar()
 
     def _setup_menubar(self):
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
 
         menu_bar.addMenu(help_menu)
 
-        # ----------- Optional Refresh Dashboard action -----------
+        # ----------- Optional Refresh Dashboard action (optional) -----------
         refresh_action = QAction("Refresh Dashboard", self)
         refresh_action.triggered.connect(self.dashboard.refresh_charts)
         menu_bar.addAction(refresh_action)
@@ -148,7 +148,8 @@ class MainWindow(QMainWindow):
 
         dialog = BillForm()
         if dialog.exec():
-            self.dashboard.refresh_home_tab()  # Refresh dashboard after adding bill
+            # Refresh dashboard home tab after adding a bill
+            self.dashboard.refresh_home_tab()
 
     # ==== View Menu Actions ====
 
@@ -163,7 +164,7 @@ class MainWindow(QMainWindow):
         if self.income_window is None:
             self.income_window = IncomeTable()
 
-            # Optionally connect dashboard add income to refresh income window as well
+            # Connect dashboard add income quick action to refresh income window as well
             self.dashboard._emit_add_income = self._wrapped_add_income_with_refresh
 
         self.income_window.show()
@@ -208,10 +209,16 @@ class MainWindow(QMainWindow):
     def open_currency_dialog(self):
         dialog = CurrencyChooser()
         if dialog.exec():
+            # Refresh dashboard currency and UI immediately
+            self.dashboard.update_currency()
+            self.dashboard.refresh_home_tab()
             self.dashboard.refresh_charts()
+
+            # Refresh open windows that display currency
             if self.expense_window:
                 self.expense_window.refresh_table()
             if self.income_window:
+                self.income_window.update_currency()
                 self.income_window.refresh_table()
 
     # ==== Help Menu Actions ====
