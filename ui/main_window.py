@@ -15,16 +15,14 @@ from ui.expense_form import ExpenseForm
 from ui.income_form import IncomeForm
 from ui.currency_chooser import CurrencyChooser
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
         self.setWindowTitle("Panamaram - Personal Finance Expense Tracker")
         self.resize(1100, 680)
 
         # Set application icon depending on OS
-        base_dir = os.path.dirname(os.path.dirname(__file__))  # Adjust if needed for your directory structure
+        base_dir = os.path.dirname(os.path.dirname(__file__))
         assets_dir = os.path.join(base_dir, "assets")
         icon_path = os.path.join(assets_dir, "icon.ico" if sys.platform.startswith("win") else "icon.png")
         if os.path.exists(icon_path):
@@ -43,6 +41,10 @@ class MainWindow(QMainWindow):
         # Setup main menu bar and menus
         self._setup_menubar()
 
+    def refresh_dashboard_home_tiles(self):
+        """Refresh the summary tiles and home data on the dashboard."""
+        self.dashboard.refresh_home_tab()
+
     def _setup_menubar(self):
         menu_bar = self.menuBar()
 
@@ -60,7 +62,6 @@ class MainWindow(QMainWindow):
         add_bill_action = QAction("Add Bill Reminder", self)
         add_bill_action.triggered.connect(self.open_add_bill)
         file_menu.addAction(add_bill_action)
-
         file_menu.addSeparator()
 
         export_backup_action = QAction("Export Backup", self)
@@ -72,13 +73,11 @@ class MainWindow(QMainWindow):
         import_backup_action.setToolTip("Restore encrypted database file (.aes) from backup, overwriting current data")
         import_backup_action.triggered.connect(self.import_encrypted_backup)
         file_menu.addAction(import_backup_action)
-
         file_menu.addSeparator()
 
         exit_action = QAction("Exit", self)
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
-
         menu_bar.addMenu(file_menu)
 
         # ----------- View Menu -----------
@@ -104,27 +103,22 @@ class MainWindow(QMainWindow):
 
         # ----------- Settings Menu -----------
         settings_menu = QMenu("Settings", self)
-
         currency_action = QAction("Change Currency", self)
         currency_action.triggered.connect(self.open_currency_dialog)
         settings_menu.addAction(currency_action)
-
         menu_bar.addMenu(settings_menu)
 
         # ----------- Help Menu -----------
         help_menu = QMenu("Help", self)
-
         license_action = QAction("License", self)
         license_action.triggered.connect(self.show_license_dialog)
         help_menu.addAction(license_action)
-
         about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about_dialog)
         help_menu.addAction(about_action)
-
         menu_bar.addMenu(help_menu)
 
-        # ----------- Optional Refresh Dashboard action (optional) -----------
+        # ----------- Optional Refresh Dashboard action -----------
         refresh_action = QAction("Refresh Dashboard", self)
         refresh_action.triggered.connect(self.dashboard.refresh_charts)
         menu_bar.addAction(refresh_action)
@@ -132,12 +126,20 @@ class MainWindow(QMainWindow):
     # ==== File Menu Actions ====
 
     def open_add_expense(self):
-        dialog = ExpenseForm(on_save_callback=self.dashboard.refresh_charts)
-        dialog.exec()
+        dialog = ExpenseForm()
+        if dialog.exec():
+            self.refresh_dashboard_home_tiles()
+            self.dashboard.refresh_charts()
+            if self.expense_window:
+                self.expense_window.refresh_table()
 
     def open_add_income(self):
-        dialog = IncomeForm(on_save_callback=self.dashboard.refresh_charts)
-        dialog.exec()
+        dialog = IncomeForm()
+        if dialog.exec():
+            self.refresh_dashboard_home_tiles()
+            self.dashboard.refresh_charts()
+            if self.income_window:
+                self.income_window.refresh_table()
 
     def open_add_bill(self):
         try:
@@ -145,11 +147,11 @@ class MainWindow(QMainWindow):
         except ImportError:
             QMessageBox.warning(self, "Error", "Bill Form not found or not implemented yet.")
             return
-
         dialog = BillForm()
         if dialog.exec():
             # Refresh dashboard home tab after adding a bill
-            self.dashboard.refresh_home_tab()
+            self.refresh_dashboard_home_tiles()
+            self.dashboard.refresh_charts()
 
     # ==== View Menu Actions ====
 
@@ -163,17 +165,16 @@ class MainWindow(QMainWindow):
     def open_income_window(self):
         if self.income_window is None:
             self.income_window = IncomeTable()
-
             # Connect dashboard add income quick action to refresh income window as well
             self.dashboard._emit_add_income = self._wrapped_add_income_with_refresh
-
         self.income_window.show()
         self.income_window.raise_()
         self.income_window.activateWindow()
 
     def _wrapped_add_income_with_refresh(self):
-        dialog = IncomeForm(on_save_callback=self.dashboard.refresh_charts)
+        dialog = IncomeForm()
         if dialog.exec():
+            self.refresh_dashboard_home_tiles()
             self.dashboard.refresh_charts()
             if self.income_window:
                 self.income_window.refresh_table()
@@ -186,7 +187,6 @@ class MainWindow(QMainWindow):
             except ImportError:
                 QMessageBox.warning(self, "Error", "Reports window not found or not implemented yet.")
                 return
-
         self.report_window.show()
         self.report_window.raise_()
         self.report_window.activateWindow()
@@ -197,7 +197,6 @@ class MainWindow(QMainWindow):
         except ImportError:
             QMessageBox.warning(self, "Error", "Bill Table not found or not implemented yet.")
             return
-
         if self.bills_window is None:
             self.bills_window = BillTable(self)
         self.bills_window.show()
@@ -211,9 +210,8 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             # Refresh dashboard currency and UI immediately
             self.dashboard.update_currency()
-            self.dashboard.refresh_home_tab()
+            self.refresh_dashboard_home_tiles()
             self.dashboard.refresh_charts()
-
             # Refresh open windows that display currency
             if self.expense_window:
                 self.expense_window.refresh_table()
@@ -264,7 +262,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "Backup Failed", f"Could not find encrypted database file.\n{e}")
             return
-
         if not os.path.exists(db_encrypted_path):
             QMessageBox.warning(self, "Backup Failed", f"Encrypted database file not found:\n{db_encrypted_path}")
             return
@@ -275,10 +272,8 @@ class MainWindow(QMainWindow):
             "panamaram-backup.db.aes",
             "Encrypted DB Files (*.aes);;All Files (*)"
         )
-
         if not dest_file:
             return
-
         try:
             shutil.copy2(db_encrypted_path, dest_file)
             QMessageBox.information(
@@ -298,17 +293,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "Restore Failed", f"Could not find encrypted database path.\n{e}")
             return
-
         src_file, _ = QFileDialog.getOpenFileName(
             self,
             "Import Backup",
             "",
             "Encrypted DB Files (*.aes);;All Files (*)"
         )
-
         if not src_file:
             return
-
         reply = QMessageBox.question(
             self,
             "Confirm Restore",
@@ -321,13 +313,10 @@ class MainWindow(QMainWindow):
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
-
         if reply != QMessageBox.Yes:
             return
-
         try:
             shutil.copy2(src_file, db_encrypted_path)
-
             # Remove decrypted DB file if it exists to force fresh decrypt on next start
             if os.path.exists(decrypted_db_path):
                 try:
@@ -339,7 +328,6 @@ class MainWindow(QMainWindow):
                         f"Could not remove decrypted database file:\n{str(e)}\n"
                         "You may need to restart your computer or close any app using the database."
                     )
-
             QMessageBox.information(
                 self,
                 "Restore Successful",
