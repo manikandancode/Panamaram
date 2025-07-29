@@ -28,17 +28,17 @@ class MainWindow(QMainWindow):
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
-        # Initialize child windows as None
+        # Initialize child windows as None (for single window instances)
         self.expense_window = None
         self.income_window = None
         self.report_window = None
-        self.bills_window = None  # Bill reminders window
+        self.bills_window = None
 
-        # Setup main dashboard widget and set as central widget
+        # Main dashboard widget setup
         self.dashboard = DashboardWidget()
         self.setCentralWidget(self.dashboard)
 
-        # Setup main menu bar and menus
+        # Set up menus
         self._setup_menubar()
 
     def refresh_dashboard_home_tiles(self):
@@ -149,7 +149,6 @@ class MainWindow(QMainWindow):
             return
         dialog = BillForm()
         if dialog.exec():
-            # Refresh dashboard home tab after adding a bill
             self.refresh_dashboard_home_tiles()
             self.dashboard.refresh_charts()
 
@@ -158,6 +157,8 @@ class MainWindow(QMainWindow):
     def open_expense_window(self):
         if self.expense_window is None:
             self.expense_window = ExpenseTable()
+            self.expense_window.dataChanged.connect(self.refresh_dashboard_home_tiles)
+            self.expense_window.dataChanged.connect(self.dashboard.refresh_charts)
         self.expense_window.show()
         self.expense_window.raise_()
         self.expense_window.activateWindow()
@@ -165,7 +166,8 @@ class MainWindow(QMainWindow):
     def open_income_window(self):
         if self.income_window is None:
             self.income_window = IncomeTable()
-            # Connect dashboard add income quick action to refresh income window as well
+            self.income_window.dataChanged.connect(self.refresh_dashboard_home_tiles)
+            self.income_window.dataChanged.connect(self.dashboard.refresh_charts)
             self.dashboard._emit_add_income = self._wrapped_add_income_with_refresh
         self.income_window.show()
         self.income_window.raise_()
@@ -208,11 +210,9 @@ class MainWindow(QMainWindow):
     def open_currency_dialog(self):
         dialog = CurrencyChooser()
         if dialog.exec():
-            # Refresh dashboard currency and UI immediately
             self.dashboard.update_currency()
             self.refresh_dashboard_home_tiles()
             self.dashboard.refresh_charts()
-            # Refresh open windows that display currency
             if self.expense_window:
                 self.expense_window.refresh_table()
             if self.income_window:
@@ -317,7 +317,6 @@ class MainWindow(QMainWindow):
             return
         try:
             shutil.copy2(src_file, db_encrypted_path)
-            # Remove decrypted DB file if it exists to force fresh decrypt on next start
             if os.path.exists(decrypted_db_path):
                 try:
                     os.remove(decrypted_db_path)
