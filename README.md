@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="assets/icon.png" alt="Panamaram App Icon" width="120"/>
+</p>
 # Panamaram - Personal Finance Expense Tracker
 
 [![Python](https://img.shields.io/badge/Python-3.13.3-blue?logo=python)](https://www.python.org/downloads/release/python-3133/)
