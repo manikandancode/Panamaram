@@ -288,11 +288,15 @@ class MainWindow(QMainWindow):
     def import_encrypted_backup(self):
         try:
             from utils import path_utils
+            from utils.key_manager import get_encryption_password
+            from utils.secure_file_utils import decrypt_db_file
+            import tempfile
             db_encrypted_path = path_utils.get_secure_db_path(decrypted=False)
             decrypted_db_path = path_utils.get_secure_db_path(decrypted=True)
         except Exception as e:
-            QMessageBox.warning(self, "Restore Failed", f"Could not find encrypted database path.\n{e}")
+            QMessageBox.warning(self, "Restore Failed", f"Could not find encrypted database path or decryption tools.\n{e}")
             return
+
         src_file, _ = QFileDialog.getOpenFileName(
             self,
             "Import Backup",
@@ -301,6 +305,7 @@ class MainWindow(QMainWindow):
         )
         if not src_file:
             return
+
         reply = QMessageBox.question(
             self,
             "Confirm Restore",
@@ -315,18 +320,54 @@ class MainWindow(QMainWindow):
         )
         if reply != QMessageBox.Yes:
             return
+
+        # Step 1: Copy the file to a temp location and check decryption
+        import os
+        temp_fd, temp_enc_path = tempfile.mkstemp(suffix=".aes")
+        os.close(temp_fd)
         try:
+            shutil.copy2(src_file, temp_enc_path)
+            temp_dec_path = temp_enc_path[:-4]  # Remove ".aes" extension for temp decrypted
+            password = get_encryption_password()
+            if not password:
+                # User has no password set, cannot proceed
+                if os.path.exists(temp_enc_path):
+                    os.remove(temp_enc_path)
+                QMessageBox.critical(self, "Restore Failed", "Cannot restore: missing password for decryption.")
+                return
+
+            # Try decrypting using the user's current password
+            try:
+                decrypt_db_file(temp_enc_path, temp_dec_path, password)
+            except Exception as e:
+                # Clean up all temp files
+                if os.path.exists(temp_enc_path):
+                 os.remove(temp_enc_path)
+                if os.path.exists(temp_dec_path):
+                    os.remove(temp_dec_path)
+                QMessageBox.critical(
+                    self,
+                    "Restore Failed",
+                    "Restore failed: The selected file could not be decrypted with your password.\n\n"
+                    "This usually means the backup was created with a different password, belongs to another user, "
+                    "or is corrupted.\n\nYour current data has NOT been changed.\n\n"
+                    f"(Error: {str(e)})"
+                )
+                return
+
+            # Success: decryption worked. Now proceed with actual overwrite.
             shutil.copy2(src_file, db_encrypted_path)
+            # Clean up
+            if os.path.exists(temp_enc_path):
+                os.remove(temp_enc_path)
+            if os.path.exists(temp_dec_path):
+             os.remove(temp_dec_path)
             if os.path.exists(decrypted_db_path):
                 try:
                     os.remove(decrypted_db_path)
-                except Exception as e:
-                    QMessageBox.warning(
-                        self,
-                        "Warning",
-                        f"Could not remove decrypted database file:\n{str(e)}\n"
-                        "You may need to restart your computer or close any app using the database."
-                    )
+                except Exception:
+                    pass
+
             QMessageBox.information(
                 self,
                 "Restore Successful",
@@ -334,5 +375,8 @@ class MainWindow(QMainWindow):
                 "The application will now close. Please restart and unlock with the correct password to access your data."
             )
             self.close()
+
         except Exception as e:
+            if os.path.exists(temp_enc_path):
+                os.remove(temp_enc_path)
             QMessageBox.critical(self, "Restore Failed", f"Failed to restore backup:\n{str(e)}")
