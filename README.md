@@ -4,7 +4,7 @@
 [![PySide6](https://img.shields.io/badge/PySide6-6.9.1-brightgreen)](https://pypi.org/project/PySide6/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-blueviolet)](https://www.microsoft.com/software-download/windows11)
-[![Stars](https://img.shields.io/github/stars/your-repo/panamaram?style=social)](https://github.com/manikandancode/Panamaram)
+[![Stars](https://img.shields.io/github/stars/manikandancode/Panamaram?style=social)](https://github.com/manikandancode/Panamaram)
 
 A **secure, modern, and user-friendly desktop app** to manage your personal finances, built in Python using PySide6 (Qt) and SQLite. Track expenses, incomes, recurring bills, visualize reports, and protect your data with robust encryption.
 
@@ -207,7 +207,7 @@ Thanks to everyone who tested, gave feedback, and inspired features.
 
 ## 🙋‍♂️ Questions? Feedback?
 
-Open an [issue](https://github.com/manikandancode/Panamaram) or contact the author  
+Open an [issue](https://github.com/manikandancode/Panamaram/issues) or contact the author  
 Website: https://due.im
 
 ---
