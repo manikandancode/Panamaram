@@ -1,15 +1,16 @@
 <p align="center">
   <img src="assets/icon.png" alt="Panamaram App Icon" width="120"/>
 </p>
+
 # Panamaram - Personal Finance Expense Tracker
 
 [![Python](https://img.shields.io/badge/Python-3.13.3-blue?logo=python)](https://www.python.org/downloads/release/python-3133/)
 [![PySide6](https://img.shields.io/badge/PySide6-6.9.1-brightgreen)](https://pypi.org/project/PySide6/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-blueviolet)](https://www.microsoft.com/software-download/windows11)
 [![Stars](https://img.shields.io/github/stars/manikandancode/Panamaram?style=social)](https://github.com/manikandancode/Panamaram)
 
-A **secure, modern, and user-friendly desktop app** to manage your personal finances, built in Python using PySide6 (Qt) and SQLite. Track expenses, incomes, recurring bills, visualize reports, and protect your data with robust encryption.
+Panamaram is a secure, offline personal finance app designed to help you effortlessly manage expenses, income, bills, and budgets. Track your daily spending, set reminders for recurring payments, and get smart insights with visual dashboards and exportable reports. With strong password protection and advanced encryption, your financial data stays private and protected. Enjoy a clean, modern interface with dark mode, multi-currency support, and a smooth user experience—no internet required.
 
 ---
 
