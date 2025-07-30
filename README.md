@@ -102,18 +102,27 @@ Panamaram/
 python --version
 ```
 
-Output: Python 3.13.3
+- Output: Python 3.13.3
 
 ### 2. Create Your Project Directory
+
+- Open your terminal or command prompt and run:
 ```bash
 mkdir Panamaram
 cd Panamaram
 ```
 ### 3. Create and Activate a Virtual Environment
+
+- Create virtual environment
 ```bash
 python -m venv venv
+```
+- Activate (on Windows)
+```bash
 venv\Scripts\activate
 ```
+- If successful, your terminal will show:
+(venv)
 ### 4. Install Required Packages
 ```bash
 pip install PySide6
@@ -198,7 +207,7 @@ Thanks to everyone who tested, gave feedback, and inspired features.
 
 ## 🙋‍♂️ Questions? Feedback?
 
-Open an [issue](https://github.com/your-repo/panamaram/issues) or contact the author  
+Open an [issue](https://github.com/manikandancode/Panamaram) or contact the author  
 Website: https://due.im
 
 ---
