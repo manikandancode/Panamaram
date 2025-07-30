@@ -42,6 +42,38 @@ Panamaram is a secure, offline personal finance app designed to help you effortl
 
 ---
 
+## 🌳 Panamaram – The Money Tree of Personal Finance
+
+The name **"Panamaram"** is a creative compound word derived from Tamil:
+
+- **பணம் (Paṇam)** – _Money_  
+- **மரம் (Maram)** – _Tree_
+
+### 📝 Word Formation in Tamil
+
+> **பணம்** + **மரம்** = **பணமரம் (Panamaram)**  
+> _Literally translates to_ **“Money Tree”**
+
+---
+
+### 🌿 Meaning & Symbolism
+
+- **மரம் (Maram)** – Symbolizes **growth**, **stability**, and **life**
+- **பணம் (Paṇam)** – Represents **wealth**, **income**, and **financial resources**
+
+---
+
+### 💡 Why *Panamaram*?
+
+- 🌱 A **tree of wealth** – like your finances growing steadily over time  
+- 🌼 A **source or tracker** that helps your money **flourish**  
+- 🧠 A **personal finance tool** that **nurtures and manages** your expenses and income wisely — just like watering a tree for steady growth
+
+---
+
+> _Panamaram isn't just a name — it's a philosophy of growing your money the natural way._
+
+
 ## 🗂️ Project Structure
 ```bash
 Panamaram/
