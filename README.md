@@ -209,7 +209,47 @@ python main.py
 - For a Windows installer, look at NSIS or Inno Setup.
 - (Request sample scripts or guidance if needed!)
 
+### 📦 Packaging the Application with PyInstaller
+
+Follow these steps to package **Panamaram** into a standalone executable for Windows.
+
 ---
+
+### 1️⃣ Install PyInstaller
+First, activate your virtual environment (if not already active):
+
+```bash
+venv\Scripts\activate
+```
+Then install PyInstaller:
+```bash
+pip install pyinstaller
+```
+Verify the installation:
+```bash
+pyinstaller --version
+```
+### 2️⃣ Clean Previous Builds (Recommended)
+Before creating a new build, clean any old files to avoid conflicts
+
+```bash
+rmdir /s /q dist build
+del /q *.spec
+```
+(Or delete these folders/files manually in Windows Explorer.)
+
+### 3️⃣ Build the Executable
+Run the following command to create the packaged application:
+```bash
+pyinstaller --name Panamaram --windowed --icon=assets/icon.ico --add-data "assets/icon.png;assets" --add-data "assets/icon.ico;assets" --add-data "LICENSE;." main.py
+```
+Command Breakdown:
+
+--name Panamaram → Sets the app name.
+--windowed → Runs without a terminal window.
+--icon=assets/icon.ico → Sets the app icon.
+--add-data → Includes additional files inside the build.
+main.py → The entry point of the application.
 
 ## 📝 License
 
