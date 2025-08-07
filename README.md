@@ -4,21 +4,14 @@
 
 # Panamaram - Personal Finance Expense Tracker
 
-<!-- Primary Technology & License -->
 [![Python](https://img.shields.io/badge/Python-3.13.3-blue?logo=python)](https://www.python.org/downloads/release/python-3133/)
 [![PySide6](https://img.shields.io/badge/PySide6-6.9.1-brightgreen)](https://pypi.org/project/PySide6/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-<!-- Platform Support -->
 [![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011-blueviolet)](https://www.microsoft.com/software-download/windows11)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-success)](https://www.kernel.org/)
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-lightgrey)](https://www.apple.com/macos/)
-
-<!-- Project Activity and Popularity -->
 [![Stars](https://img.shields.io/github/stars/manikandancode/Panamaram?style=social)](https://github.com/manikandancode/Panamaram)
 ![GitHub all releases](https://img.shields.io/github/downloads/manikandancode/Panamaram/total)
-
-<!-- PyPI Package Information -->
 [![PyPI Version](https://img.shields.io/pypi/v/panamaram.svg)](https://pypi.org/project/panamaram/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/panamaram.svg)](https://pypi.org/project/panamaram/)
 [![Downloads](https://pepy.tech/badge/panamaram)](https://pepy.tech/project/panamaram)
