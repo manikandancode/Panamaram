@@ -4,12 +4,25 @@
 
 # Panamaram - Personal Finance Expense Tracker
 
+<!-- Primary Technology & License -->
 [![Python](https://img.shields.io/badge/Python-3.13.3-blue?logo=python)](https://www.python.org/downloads/release/python-3133/)
 [![PySide6](https://img.shields.io/badge/PySide6-6.9.1-brightgreen)](https://pypi.org/project/PySide6/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2011-blueviolet)](https://www.microsoft.com/software-download/windows11)
+
+<!-- Platform Support -->
+[![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011-blueviolet)](https://www.microsoft.com/software-download/windows11)
+[![Platform: Linux](https://img.shields.io/badge/Platform-Linux-success)](https://www.kernel.org/)
+[![Platform: macOS](https://img.shields.io/badge/Platform-macOS-lightgrey)](https://www.apple.com/macos/)
+
+<!-- Project Activity and Popularity -->
 [![Stars](https://img.shields.io/github/stars/manikandancode/Panamaram?style=social)](https://github.com/manikandancode/Panamaram)
 ![GitHub all releases](https://img.shields.io/github/downloads/manikandancode/Panamaram/total)
+
+<!-- PyPI Package Information -->
+[![PyPI Version](https://img.shields.io/pypi/v/panamaram.svg)](https://pypi.org/project/panamaram/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/panamaram.svg)](https://pypi.org/project/panamaram/)
+[![Downloads](https://pepy.tech/badge/panamaram)](https://pepy.tech/project/panamaram)
+
 
 Panamaram is a secure, offline personal finance app designed to help you effortlessly manage expenses, income, bills, and budgets. Track your daily spending, set reminders for recurring payments, and get smart insights with visual dashboards and exportable reports. With strong password protection and advanced encryption, your financial data stays private and protected. Enjoy a clean, modern interface with dark mode, multi-currency support, and a smooth user experience—no internet required.
 
@@ -74,6 +87,66 @@ The name **"Panamaram"** is a creative compound word derived from Tamil:
 
 > _Panamaram isn't just a name — it's a philosophy of growing your money the natural way._
 
+## How to Install Panamaram
+
+You can install Panamaram either using the Windows installer for easy setup or by using pip to install it as a Python package.
+
+### 1. Windows Installer (Recommended for Windows Users)
+
+Download the latest Windows installer from the official GitHub releases page:
+
+[Download PanamaramInstaller-1.0.0.exe](https://github.com/manikandancode/Panamaram/releases/download/v1.0.0/PanamaramInstaller-1.0.0.exe)
+
+**Steps:**
+
+- Download the installer `.exe` file linked above.
+- Run the installer and follow the on-screen instructions.
+- The installer will set up Panamaram on your PC.
+- After installation, you can launch Panamaram from the Start Menu or desktop shortcut.
+
+### 2. Pip Installation (Cross-platform)
+
+You can also install Panamaram via pip in a Python environment. This method works on Windows, macOS, Linux, and other platforms.
+
+**Requirements:**
+
+- Python 3.13 or above  
+- pip package manager
+
+**Installation Steps:**
+
+1. Open a terminal or command prompt.
+
+2. *(Optional but recommended)* Create and activate a new virtual environment:
+
+```bash
+python -m venv venv
+source panamaram-env/bin/activate # Linux/macOS
+panamaram-env\Scripts\activate # Windows
+```
+[OR]
+```bash
+python3.13 -m venv panamaram-env
+source panamaram-env/bin/activate # Linux/macOS
+panamaram-env\Scripts\activate # Windows
+```
+
+3. Upgrade pip:
+```bash
+pip install --upgrade pip
+```
+
+4. Install Panamaram from PyPI:
+```bash
+pip install panamaram
+```
+
+This will also install all required dependencies automatically.
+
+5. After installation, you can run Panamaram using the command:
+```bash
+panamaram
+```
 
 ## 🗂️ Project Structure
 ```bash
