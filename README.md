@@ -19,6 +19,8 @@
 
 Panamaram is a secure, offline personal finance app designed to help you effortlessly manage expenses, income, bills, and budgets. Track your daily spending, set reminders for recurring payments, and get smart insights with visual dashboards and exportable reports. With strong password protection and advanced encryption, your financial data stays private and protected. Enjoy a clean, modern interface with dark mode, multi-currency support, and a smooth user experience—no internet required.
 
+<img width="1102" height="712" alt="image" src="https://github.com/user-attachments/assets/ca11abae-c02e-470f-ae7d-b27169d6e45a" />
+
 ---
 
 ## 🌟 Features
