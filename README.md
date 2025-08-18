@@ -15,6 +15,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/panamaram.svg)](https://pypi.org/project/panamaram/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/panamaram.svg)](https://pypi.org/project/panamaram/)
 [![Downloads](https://pepy.tech/badge/panamaram)](https://pepy.tech/project/panamaram)
+[![Download .DEB](https://img.shields.io/badge/Download-.DEB-E95420?logo=ubuntu&logoColor=white)](https://github.com/manikandancode/Panamaram/releases/latest)
 
 
 Panamaram is a secure, offline personal finance app designed to help you effortlessly manage expenses, income, bills, and budgets. Track your daily spending, set reminders for recurring payments, and get smart insights with visual dashboards and exportable reports. With strong password protection and advanced encryption, your financial data stays private and protected. Enjoy a clean, modern interface with dark mode, multi-currency support, and a smooth user experience—no internet required.
@@ -82,11 +83,11 @@ The name **"Panamaram"** is a creative compound word derived from Tamil:
 
 > _Panamaram isn't just a name — it's a philosophy of growing your money the natural way._
 
-## How to Install Panamaram
+##  📥 How to Install Panamaram
 
 You can install Panamaram either using the Windows installer for easy setup or by using pip to install it as a Python package.
 
-### 1. Windows Installer (Recommended for Windows Users)
+### 🪟 1. Windows Installer (Recommended for Windows Users)
 
 Download the latest Windows installer from the official GitHub releases page:
 
@@ -99,7 +100,7 @@ Download the latest Windows installer from the official GitHub releases page:
 - The installer will set up Panamaram on your PC.
 - After installation, you can launch Panamaram from the Start Menu or desktop shortcut.
 
-### 2. Pip Installation (Cross-platform) (Linux, Windows, MacOS)
+### 🐍📦 2. Pip Installation (Cross-platform) (Linux, Windows, MacOS)
 
 You can also install Panamaram via pip in a Python environment. This method works on Windows, macOS, Linux, and other platforms.
 
@@ -142,7 +143,7 @@ This will also install all required dependencies automatically.
 ```bash
 panamaram
 ```
-### How to Install Panamaram via .deb Packages
+### 🐧 3.How to Install Panamaram via .deb Packages
 
 **1. Prerequisites**
 
