@@ -97,7 +97,7 @@ Download the latest Windows installer from the official GitHub releases page:
 - The installer will set up Panamaram on your PC.
 - After installation, you can launch Panamaram from the Start Menu or desktop shortcut.
 
-### 2. Pip Installation (Cross-platform)
+### 2. Pip Installation (Cross-platform) (Linux, Windows, MacOS)
 
 You can also install Panamaram via pip in a Python environment. This method works on Windows, macOS, Linux, and other platforms.
 
@@ -140,6 +140,50 @@ This will also install all required dependencies automatically.
 ```bash
 panamaram
 ```
+### How to Install Panamaram via .deb Packages
+
+**1. Prerequisites**
+
+- You need a Debian-based Linux distribution (e.g., Ubuntu 25.04 [Tested].
+- Download these two package files from release page and save in your Downloads directory
+  - [python3-pyaescrypt_6.1.1-1_all.deb](https://github.com/manikandancode/Panamaram/releases/download/v1.0.0/python3-pyaescrypt_6.1.1-1_all.deb)
+  - [panamaram_1.0.0-1_amd64.deb](https://github.com/manikandancode/Panamaram/releases/download/v1.0.0/panamaram_1.0.0-1_amd64.deb)
+
+**2. Open a Terminal and navigate to the download directory**
+```bash
+cd ~/Downloads
+```
+
+**3. Install the python3-pyaescrypt dependency first** 
+```bash
+sudo apt install ./python3-pyaescrypt_6.1.1-1_all.deb
+```
+
+**4. Install the Panamaram package**
+```bash
+sudo apt install ./panamaram_1.0.0-1_amd64.deb
+```
+> Both commands will automatically install any additional dependencies from the Ubuntu repositories.
+
+**5. Launch Panamaram**
+```bash
+panamaram
+```
+**Troubleshooting**
+
+- If you encounter errors about missing dependencies, ensure your system has internet access so `apt` can download required packages.
+- If the Panamaram icon does not appear immediately, try logging out and logging back in or restarting your system.
+
+**Notes**
+
+- Replace the version numbers in the commands above if you have newer package versions.
+- For convenience, you can copy both `.deb` files into the same folder before running these commands.
+- To uninstall Panamaram:
+```bash
+sudo apt remove panamaram
+sudo apt remove python3-pyaescrypt
+```
+
 
 ## 🗂️ Project Structure
 ```bash
