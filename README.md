@@ -103,6 +103,10 @@ Download the latest Windows installer from the official GitHub releases page:
 - The installer will set up Panamaram on your PC.
 - After installation, you can launch Panamaram from the Start Menu or desktop shortcut.
 
+[OR]
+
+[<img src="https://get.microsoft.com/images/en-us%20light.svg" alt="Get it from Microsoft" width="220"/>](https://apps.microsoft.com/detail/9njd4qsz8fkn)
+
 ### 🐍📦 2. Pip Installation (Cross-platform) (Linux, Windows, MacOS)
 
 You can also install Panamaram via pip in a Python environment. This method works on Windows, macOS, Linux, and other platforms.
